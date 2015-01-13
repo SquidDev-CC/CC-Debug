@@ -1,0 +1,42 @@
+; Main code
+.name "@D:\Programming\CC\LuaAssemblyTools-master\Stuff.lua"
+.options 0 0 0 4
+; Above contains: Upvalue count, Argument count, Vararg flag, Max Stack Size
+
+; Constants
+.const "__pushStack"
+.const "print"
+.const "Hello"
+.const "__popStack"
+; Locals
+.local 'a'
+.local 'b'
+; Instructions
+getglobal 2 "__pushStack" ; Begin PushStack
+closure 3 0 ; Create closure
+move 0 0 0
+move 0 1 0
+call 2 2 1 ; Begin PopStack
+getglobal 2 "print"
+loadk 3 "Hello"
+call 2 2 1
+getglobal 2 "__popStack" ; PopStack (Maybe put this at the beginning)
+call 2 1 1
+return 0 1 0
+; Protos
+
+; Function 
+.func
+    .name ""
+    .options 2 0 0 2
+    ; Above contains: Upvalue count, Argument count, Vararg flag, Max Stack Size
+    
+    ; Upvalues
+    .upval 'a'
+    .upval 'b'
+    ; Instructions
+    getupval 0 0 0
+    getupval 1 1 0
+    return 0 3 0
+    return 0 1 0
+.end

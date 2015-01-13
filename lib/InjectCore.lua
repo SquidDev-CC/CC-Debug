@@ -72,6 +72,53 @@ local function InjectPushStack(chunk)
 	return chunk
 end
 
+local function TrimExitPoints(chunk, exitPoints)
+	local output = {}
+	local instructions = chunk.Instructions
+	for _, instr in pairs(exitPoints) do
+		-- Starts with 0 indexing (so -1), and use the previous one (so -1 again)
+		-- If previous instruction is a return instruction and nothing jumps to this then we can safely ignore this.
+		-- And so not bother to inject code near it.
+		-- Using #JumpsTo is ineffecient but...
+		if instr.Number == nil or instructions[instr.Number - 2].Opcode ~= "RETURN" or #JumpsTo(chunk, instr) > 0 then
+			output[#output + 1] = instr
+		end
+	end
+	return output
+end
+
+local function InjectPopStack(chunk)
+	chunk.Constants:Add(popStack)
+	local popIndex = chunk.Constants.Count - 1
+
+	local instructions = chunk.Instructions
+
+	-- Get local count
+	local localCount = chunk.Locals.Coun
+
+	-- Gather exit points and trim the inaccessible ones
+	for _, exitPoint in pairs(chunkJumpInstructions.ExitPoints(chunk)) do
+		local jumps = JumpInstructions.JumpsTo(chunk, exitPoint)
+
+		local previous = instructions[exitPoint.Number - 2]
+
+		-- No point injecting if unreachable code
+		if previous.OPCODE ~= "RETURN" or #jumps > 0 then
+			local startingRegister = exitPoint.A
+			local returnCount = exitPoint.B - 1
+			local endRegister = startingRegister +  returnCount
+
+			if startingRegister > 0 then
+				-- Inject at 0
+			elseif returnCount >= 0 then
+				-- Inject at returnCount + 1
+			else
+				-- Inject higher in the list
+			end
+		end
+	end
+end
+
 return {
 	InjectPushStack = InjectPushStack,
 }

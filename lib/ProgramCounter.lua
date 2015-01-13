@@ -34,6 +34,15 @@ local function AtLine(chunk, line)
 	return output
 end
 
+local function ReassignNumbers(chunk)
+	local instructions = chunk.Instructions
+
+	for index, 0, instructions - 1 do
+		instructions[index].Number = index + 1
+	end
+
+end
+
 return {
 	PcAtLine = PcAtLine,
 	AtLine = AtLine,
